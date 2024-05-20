@@ -1,0 +1,31 @@
+<p><em>多元函数可导不一定连续</em></p>
+<h1 id="多元函数连续的充要条件"><a href="#多元函数连续的充要条件" class="headerlink" title="多元函数连续的充要条件"></a>多元函数连续的充要条件</h1><p>多元函数 $f(x, y)$ 在某点 $(a, b)$ 处连续的充要条件是其在该点处的极限存在且与路径无关。形式化地说，$f(x, y)$ 在 $(a, b)$ 处连续的充要条件是：</p>
+<p>$$<br>\lim_{(x, y) \to (a, b)} f(x, y) &#x3D; f(a, b)<br>$$</p>
+<h1 id="多元函数可导的充要条件"><a href="#多元函数可导的充要条件" class="headerlink" title="多元函数可导的充要条件"></a>多元函数可导的充要条件</h1><p>多元函数可导的充要条件可以用偏导数来表述。设 $f(x, y)$ 是定义在某个区域内的二元函数，那么 $f(x, y)$ 在某点 $(a, b)$ 处可导的充要条件是：</p>
+<ol>
+<li>存在偏导数 $f_x(a, b)$ 和 $f_y(a, b)$；</li>
+<li>$f(x, y)$ 在 $(a, b)$ 处沿任意方向的方向导数存在且连续，即沿任意单位向量 $(\cos \theta, \sin \theta)$，$\lim_{h \to 0} \frac{f(a + h\cos \theta, b + h\sin \theta) - f(a, b)}{h}$ 存在且与方向 $\theta$ 无关。</li>
+</ol>
+<h1 id="多元函数可微的充要条件"><a href="#多元函数可微的充要条件" class="headerlink" title="多元函数可微的充要条件"></a>多元函数可微的充要条件</h1><p>多元函数可微的充要条件可以使用偏导数和全微分来表述。设 $f(x, y)$ 是定义在某个区域内的二元函数，那么 $f(x, y)$ 在某点 $(a, b)$ 处可微的充要条件是：</p>
+<ol>
+<li><p>存在偏导数 $f_x(a, b)$ 和 $f_y(a, b)$；</p>
+</li>
+<li><p>$f(x, y)$ 在 $(a, b)$ 处沿任意方向的方向导数存在。</p>
+</li>
+<li><p>存在常数 $A$ 和 $B$ 使得在 $(a, b)$ 附近有以下成立：</p>
+</li>
+</ol>
+<p>$$\lim_{（x,y）\to (a,b)}<br>f(x, y) - f(a, b) &#x3D; f_x(a, b)(x-a) + f_y(a, b)(y-b) + A(x-a) + B(y-b) \quad <br>$$</p>
+<h1 id="多元函数可微的证明方法"><a href="#多元函数可微的证明方法" class="headerlink" title="多元函数可微的证明方法"></a>多元函数可微的证明方法</h1><p>证明多元函数 $f(x, y)$ 在某点 $(a, b)$ 处可微的一个常见方法如下：</p>
+<p>已知全微分为<br>$$<br>df &#x3D; \frac{\partial f}{\partial x} dx + \frac{\partial f}{\partial y} dy<br>$$</p>
+<p>这里，$\frac{\partial f}{\partial x}$ 和 $\frac{\partial f}{\partial y}$ 分别表示 $f$ 对 $x$ 和 $y$ 的偏导数，$dx$ 和 $dy$ 分别表示自变量 $x$ 和 $y$ 的微小变化量。</p>
+<p>我们又知道，当使用 $\Delta x$ 和 $\Delta y$ 表示自变量的微小变化时，函数 $f(x, y)$ 的增量可以表示为：</p>
+<p>$$<br>\Delta z &#x3D; A\Delta x+B\Delta y+o(ρ)<br>$$<br>因此，满足如下公式的时候，多元函数可微分：</p>
+<p>$$<br>\lim_{（x,y）\to (a,b)}\frac{df}{\sqrt{x^2 + y^2}} &#x3D; \frac{\frac{\partial f}{\partial x} dx + \frac{\partial f}{\partial y} dy-f(a,b)}{\sqrt{x^2 + y^2}}&#x3D;0<br>$$</p>
+<h1 id="多元函数偏导数"><a href="#多元函数偏导数" class="headerlink" title="多元函数偏导数"></a>多元函数偏导数</h1><p>对于多元函数 $f(x, y)$，其偏导数连续、可导、可微的充要条件可以总结如下：</p>
+<h3 id="偏导数连续的充要条件："><a href="#偏导数连续的充要条件：" class="headerlink" title="偏导数连续的充要条件："></a>偏导数连续的充要条件：</h3><h4 id="充分条件："><a href="#充分条件：" class="headerlink" title="充分条件："></a>充分条件：</h4><p>如果 $f(x, y)$ 的偏导数 $\frac{\partial f}{\partial x}$ 和 $\frac{\partial f}{\partial y}$ 在某个区域内连续，则 $f(x, y)$ 在该区域内偏导数连续。</p>
+<h4 id="必要条件："><a href="#必要条件：" class="headerlink" title="必要条件："></a>必要条件：</h4><p>如果 $f(x, y)$ 在某点处可微分，则该点的偏导数存在且连续。</p>
+<h3 id="可导的充要条件："><a href="#可导的充要条件：" class="headerlink" title="可导的充要条件："></a>可导的充要条件：</h3><h4 id="充分条件：-1"><a href="#充分条件：-1" class="headerlink" title="充分条件："></a>充分条件：</h4><p>如果 $f(x, y)$ 的偏导数 $\frac{\partial f}{\partial x}$ 和 $\frac{\partial f}{\partial y}$ 在某个区域内存在且连续，则 $f(x, y)$ 在该区域内可导。</p>
+<h4 id="必要条件：-1"><a href="#必要条件：-1" class="headerlink" title="必要条件："></a>必要条件：</h4><p>如果 $f(x, y)$ 在某点处可导，则该点的偏导数存在。</p>
+<h3 id="可微的充要条件："><a href="#可微的充要条件：" class="headerlink" title="可微的充要条件："></a>可微的充要条件：</h3><h4 id="充分条件：-2"><a href="#充分条件：-2" class="headerlink" title="充分条件："></a>充分条件：</h4><p>如果 $f(x, y)$ 在某点处的偏导数存在且连续，那么 $f(x, y)$ 在该点处可微。</p>
+<h4 id="必要条件：-2"><a href="#必要条件：-2" class="headerlink" title="必要条件："></a>必要条件：</h4><p>如果 $f(x, y)$ 在某点处可微，则 $f(x, y)$ 在该点处可导，且偏导数存在且连续。</p>
