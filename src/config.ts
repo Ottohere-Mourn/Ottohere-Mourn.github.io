@@ -1,4 +1,5 @@
 export const siteConfig = {
+  siteName: "Mourn's blog",
   name: 'Mourn',
   chineseName: '毛锦昊',
   role: 'Researcher / Engineer',

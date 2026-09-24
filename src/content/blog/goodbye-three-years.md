@@ -1,7 +1,7 @@
 ---
 title: "辞别我的徘徊、执拗、迷惘与苦修"
 description: "本科三年与保研季的一次回望，记录从嵌入式、前后端、独立游戏和三维重建，慢慢走向多模态大模型研究的过程。"
-pubDate: 2026-09-24
+pubDate: 2026-09-23
 category: "Agent Systems"
 tags: ["保研", "软件工程", "研究路径"]
 readingTime: "3 min read"
