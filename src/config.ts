@@ -16,4 +16,5 @@ export const categories = [
   { name: 'Long Video Understanding', label: 'Long Video Understanding' },
   { name: 'Efficient Inference', label: 'Efficient Inference' },
   { name: 'Agent Systems', label: 'Agent Systems' },
+  { name: 'Experience Sharing', label: 'Experience Sharing' },
 ];

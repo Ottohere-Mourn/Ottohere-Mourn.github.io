@@ -8,7 +8,7 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     pubDate: z.coerce.date(),
-    category: z.enum(['Long Video Understanding', 'Efficient Inference', 'Agent Systems']),
+    category: z.enum(['Long Video Understanding', 'Efficient Inference', 'Agent Systems', 'Experience Sharing']),
     tags: z.array(z.string()),
     readingTime: z.string(),
     featured: z.boolean().default(false),
