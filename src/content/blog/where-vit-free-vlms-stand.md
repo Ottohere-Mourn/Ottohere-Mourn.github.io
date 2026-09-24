@@ -6,7 +6,6 @@ category: "Efficient Inference"
 tags: ["ViT-free", "VLM", "Video Understanding", "Efficient Inference"]
 readingTime: "10 min read"
 featured: true
-cover: "/images/vlm-grid.svg"
 ---
 
 最近在集中看 ViT-free / encoder-free VLM，所以顺手做了一轮现有开源模型的统一横评。

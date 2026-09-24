@@ -6,7 +6,6 @@ category: "Agent Systems"
 tags: ["保研", "软件工程", "研究路径"]
 readingTime: "3 min read"
 featured: true
-cover: "/images/campus-map.svg"
 ---
 
 保研季结束以后，还是想简单记一下本科前三年。
