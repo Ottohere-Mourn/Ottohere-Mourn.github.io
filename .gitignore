@@ -3,5 +3,6 @@ dist/
 .astro/
 .tmp/
 npm-cache/
+docs/BLOG_UPDATE_GUIDE.md
 .DS_Store
 *.log
