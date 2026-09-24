@@ -1,0 +1,51 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProfileRail from '../../components/ProfileRail.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const date = post.data.pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+<BaseLayout title={`${post.data.title} — Mourn`} description={post.data.description}>
+  <main class="page-grid article-page">
+    <ProfileRail />
+    <article class="article-column">
+      <a class="back-link" href="/">← <span>Back to notes</span></a>
+      <header class="article-header">
+        <p class="post-category">{post.data.category}</p>
+        <h1>{post.data.title}</h1>
+        <p class="article-dek">{post.data.description}</p>
+        <div class="article-meta">
+          <span>{date}</span><span class="meta-rule"></span><span>{post.data.readingTime}</span>
+        </div>
+        <div class="tag-row">
+          {post.data.tags.map((tag) => <span>#{tag}</span>)}
+        </div>
+      </header>
+
+      {post.data.cover && <img class="article-cover" src={post.data.cover} alt="" />}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <footer class="article-footer">
+        <a href="/">← All notes</a>
+        <span>End of note</span>
+      </footer>
+    </article>
+  </main>
+</BaseLayout>

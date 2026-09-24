@@ -1,0 +1,31 @@
+---
+import { siteConfig } from '../config';
+---
+<aside class="profile-rail">
+  <div class="profile-topline">
+    <span class="eyebrow">PERSONAL LOG / 2026</span>
+    <span class="status-dot" aria-label="Currently writing"></span>
+  </div>
+
+  <div class="profile-card">
+    <div class="avatar-wrap">
+      <img src={siteConfig.avatar} alt={`${siteConfig.name} avatar`} />
+    </div>
+    <p class="profile-kicker">{siteConfig.role}</p>
+    <h1>{siteConfig.name}<span>{siteConfig.chineseName}</span></h1>
+    <p class="profile-intro">{siteConfig.intro}</p>
+  </div>
+
+  <nav class="profile-links" aria-label="External links">
+    <a href={siteConfig.links.github} target="_blank" rel="noreferrer">
+      <span>GitHub</span><span class="link-arrow">↗</span>
+    </a>
+    <a href={siteConfig.links.xiaohongshu} target="_blank" rel="noreferrer">
+      <span>小红书</span><span class="link-arrow">↗</span>
+    </a>
+  </nav>
+
+  <div class="profile-note">
+    <p>簌簌雨兮，<br />长祈天晴。</p>
+  </div>
+</aside>

@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  index: number;
+}
+
+const { post, index } = Astro.props;
+const date = post.data.pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+---
+<article class:list={["post-card", { featured: post.data.featured }]}>
+  <a class="post-card-link" href={`/blog/${post.id}`}>
+    <div class="post-meta">
+      <span class="post-number">0{index + 1}</span>
+      <span>{date}</span>
+      <span class="meta-rule"></span>
+      <span>{post.data.readingTime}</span>
+    </div>
+    <div class="post-card-body">
+      <div>
+        <p class="post-category">{post.data.category}</p>
+        <h2>{post.data.title}</h2>
+        <p class="post-description">{post.data.description}</p>
+        <div class="tag-row">
+          {post.data.tags.map((tag) => <span>#{tag}</span>)}
+        </div>
+      </div>
+    </div>
+    <span class="read-more">Read note <span>↗</span></span>
+  </a>
+</article>

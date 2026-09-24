@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProfileRail from '../components/ProfileRail.astro';
+import PostCard from '../components/PostCard.astro';
+import { categories } from '../config';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+<BaseLayout>
+  <main class="page-grid">
+    <ProfileRail />
+    <section class="content-column">
+      <header class="blog-header">
+        <div>
+          <p class="section-label">A FIELD NOTEBOOK</p>
+          <h2>Blog<span class="title-dot">.</span></h2>
+        </div>
+        <p class="header-aside">Research notes, technical readings,<br />and the practice around them.</p>
+      </header>
+
+      <div class="category-strip" aria-label="Article categories">
+        {categories.map((category, index) => (
+          <span class:list={["category-pill", { active: index === 0 }]}>{category.label}<small>{category.name}</small></span>
+        ))}
+      </div>
+
+      <div class="post-list">
+        {posts.map((post, index) => <PostCard post={post} index={index} />)}
+      </div>
+
+      <footer class="site-footer">
+        <span>© 2026 Mourn / 毛锦昊</span>
+        <span>Built with Astro · designed for long reads</span>
+      </footer>
+    </section>
+  </main>
+</BaseLayout>
