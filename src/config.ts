@@ -1,13 +1,13 @@
 export const siteConfig = {
   siteName: "Mourn's blog",
   name: 'Mourn',
-  chineseName: '毛锦昊',
+  chineseName: 'Jinhao Mao',
   role: 'Researcher / Engineer',
   intro: '浙大本硕，软件工程在读。',
   avatar: '/avatar.jpg',
   links: {
-    github: 'https://github.com/',
-    xiaohongshu: 'https://www.xiaohongshu.com/',
+    github: 'https://github.com/Ottohere-Mourn',
+    xiaohongshu: 'https://xhslink.cn/o/9CQSdhZFkc3',
   },
 };
 

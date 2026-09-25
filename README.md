@@ -1,6 +1,6 @@
 # Mourn's blog
 
-Mourn / 毛锦昊
+Mourn / Jinhao Mao
 
 浙大本硕，软件工程在读。
 

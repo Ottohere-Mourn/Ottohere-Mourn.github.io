@@ -1,5 +1,5 @@
 ---
-title: "ViT-free VLM 到底走到哪了？"
+title: "去掉 ViT，真的会更强吗？"
 description: "一轮现有开源 ViT-free / encoder-free VLM 的统一横评：从模型能力、输入范式到视觉信息如何被任务真正利用。"
 pubDate: 2026-09-24
 category: "Efficient Inference"
@@ -8,151 +8,158 @@ readingTime: "10 min read"
 featured: true
 ---
 
-最近在集中看 ViT-free / encoder-free VLM，所以顺手做了一轮现有开源模型的统一横评。
+最近刷小红书的时候，经常看到一种很有吸引力的说法：
 
-先说为什么会对这个东西感兴趣。
+> ViT 会在视觉编码阶段提前压缩、抽象甚至丢失细节；如果直接把图像 patch 送进语言模型，也许能保留更多视觉信息，同时减少视觉 token，甚至实现更灵活的统一建模。
 
-现在大多数 VLM 的做法其实都很类似：先用一个预训练好的视觉编码器，比如 ViT / SigLIP / DINO，把图片压成一串视觉特征，再交给 LLM。这个范式当然非常有效，但代价也很直接——LLM 真正看到的已经不是原始视觉输入，而是一份被视觉编码器处理过的表示。
+这个想法听起来很合理。
 
-ViT-free 想做的事情则更激进一点：把中间这个独立的视觉 encoder 拿掉，让模型从更接近 raw pixels / patches 的视觉输入开始，在统一的模型内部完成视觉建模和语言理解。
+但问题是：**它真的已经被实验验证了吗？**
 
-这条路其实并不新。Fuyu 很早就做过 raw image patches + linear projection 的尝试，之后 EVE 开始比较系统地研究 encoder-free VLM 怎么训练；EVEv2 又进一步缩小了和传统 encoder-based VLM 的性能差距。它目前当然谈不上取代 ViT，但已经不是一个只有概念、完全跑不起来的方向了。
+于是我把几个公开的 ViT-free 模型放到一起，和一个传统 ViT-based 模型做了一轮横向测试，想看看：
 
-更有意思的是，最近开始出现一些工作不再只是问“ViT-free 能不能做”，而是开始问：**拿掉视觉编码器之后，模型内部的视觉信息到底发生了什么？**
+* ViT-free 模型是否存在统一的优势/劣势/特征；
+* raw-patch、learned visual stack 这些路线有什么差异；
+* 它们在文字理解、文档理解和通用视觉推理上是否表现一致。
 
-例如近期的 Pixel Decodability 工作发现，在他们比较的模型中，encoder-free 模型保留了明显更多可从内部表示中恢复的 pixel-level 信息；但这些被保留下来的信息并不意味着模型在回答问题时真的会使用它。也就是说，**“信息还在”与“模型会用”很可能是两件事。**
+进一步地，如果能观察到 ViT-free 模型的统一现象，或许能以此为切入点，研发某些改进方案。不过遗憾的是，实验并没有支撑这个想法，所以写下了这篇笔记，发散地记录了一些遐想权当抛砖引玉。
 
-这个问题正好也是我最近比较感兴趣的地方。
+## ViT-free的模型有哪些？
 
-如果 ViT-free 确实减少了视觉输入早期的语义压缩，那么它最后为什么没有稳定地比 ViT-based VLM 更强？问题到底出在视觉信息有没有保留下来，还是出在后面怎么形成语义、怎么被语言模型利用？
+我把“ViT-free”限定为：视觉信息在进入统一 decoder 的主要路径上，不依赖独立的 ViT/SigLIP 类视觉理解 encoder。按视觉表示首次进入统一 decoder 前的路径，当前保留九个主流开源模型，可以分成三个类别。可以看到这的确是一个相对稀疏的蓝海领域。
 
-在继续做更细的内部诊断之前，我想先回答一个更朴素的问题：
+| 类别 | 模型 | 分类含义 |
+|---|---|---|
+| `raw-patch` | Fuyu、Gemma 4 12B Unified | 原始图像 patch 直接投影到 decoder/LLM；仍可能有 learned projection 和多模态训练，不等于“没有视觉学习”。 |
+| `learned visual stack` | EVE、EVEv2、Mono-InternVL、NEO | 从像素/patch 开始，但在进入或嵌入 LLM 前后有训练得到的视觉层、视觉专家、pre-buffer 或 native primitive。 |
+| `discrete tokenizer` | Chameleon、Emu3、Show-o | 先把图像/视频变成离散视觉 token，再进入统一 decoder；token 压缩来自 tokenizer/时空下采样。 |
 
-> **现在公开可用的 ViT-free VLM，实际能力到底已经到什么程度了？**
+## 这次测了哪些模型？
 
-所以有了下面这轮小实验。
+本次实际评测了 4 个 ViT-free 模型和 1 个 ViT-based 对照：
 
-## 测了什么
+| 模型               | 路线                   | 说明                     |
+| ---------------- | -------------------- | ---------------------- |
+| Fuyu-8B          | raw-patch            | 图像 patch 更直接进入语言模型     |
+| Gemma 4 12B      | raw-patch            | 统一式视觉—语言架构             |
+| EVEv2            | learned visual stack | 不使用传统 ViT，但保留专门视觉处理结构  |
+| Mono-InternVL-2B | learned visual stack | 使用 native visual stack |
+| InternVL3.5-8B   | ViT-based            | 作为传统视觉编码器对照            |
 
-我选了一批比较有代表性的 ViT-free / encoder-free 模型，包括：
+这里需要特别说明，ViT-free 不是一种单一架构。至少在这些模型中，就已经可以看到完全不同的设计思路。
 
-* Fuyu
-* Gemma 4
-* EVEv2
-* Mono-InternVL
-* NEO
-* Chameleon
-* Emu3
-* Show-o
+## 我们测了什么？
 
-另外加入 InternVL3.5-8B 作为一个常规 ViT-based VLM 的参考。
+本次使用了四个 benchmark：
 
-这里需要提前说一句：这**不是严格的 architecture-controlled experiment**。
+* TextVQA：图片文字读取与问答；
+* DocVQA：文档文字、布局和证据理解；
+* MMMU：多学科视觉推理；
+* MMBench：综合视觉理解与推理。
 
-这些模型参数量不同、训练数据不同、后训练方式不同，甚至对输入格式的要求也不一样。所以这轮实验不能回答“ViT-free 和 ViT-based 谁更好”，我主要只是想在尽可能统一的输入和评测协议下，看看目前公开模型大概处在什么位置。
+## 结果一：ViT-free 内部差异非常大
 
-最终能够比较完整跑完核心评测的主要是 Fuyu、Gemma 4、EVEv2、Mono-InternVL 和 InternVL。Emu3 得到了一部分结果，但输出格式在 MMBench 上存在比较严重的解析问题；NEO、Chameleon 和 Show-o 则因为 checkpoint / interface 等问题没有纳入下面的核心比较。
+### TextVQA
 
-我用了三个任务：
+| 模型            | VQA soft |    EM |
+| ------------- | -------: | ----: |
+| Fuyu          |    0.000 | 0.000 |
+| Mono-InternVL |    0.028 | 0.028 |
+| Gemma 4       |    0.653 | 0.708 |
+| EVEv2         |    0.794 | 0.833 |
+| InternVL      |    0.833 | 0.861 |
 
-**TextVQA**：偏场景文字识别和理解。
+### DocVQA
 
-**DocVQA**：更偏高分辨率文档、文字和 layout 信息。
+| 模型            |    EM |  ANLS |
+| ------------- | ----: | ----: |
+| Fuyu          | 0.069 | 0.133 |
+| Mono-InternVL | 0.042 | 0.042 |
+| Gemma 4       | 0.639 | 0.831 |
+| EVEv2         | 0.722 | 0.813 |
+| InternVL      | 0.875 | 0.927 |
 
-**MMBench**：相对综合的多模态感知和推理测试。
+### MMBench
 
-TextVQA 和 DocVQA 这里先各抽了 72 个样本做小规模测试；MMBench 则跑了完整的 4377 个样本。
+| 模型            | MMBench accuracy |     可解析样本 |
+| ------------- | ---------------: | --------: |
+| Fuyu          |            0.382 | 3305/4377 |
+| Mono-InternVL |            0.355 | 3677/4377 |
+| Gemma         |            0.882 | 4326/4377 |
+| EVEv2         |            0.733 | 4369/4377 |
+| InternVL      |            0.871 | 4376/4377 |
 
-所以前两个数字更适合看趋势，不应该把零点几个百分点的差异当真。
+同样是 ViT-free：
 
-## 结果
+* Gemma 和 EVEv2 已经具备相当不错的文字理解能力；
+* Fuyu 和 Mono-InternVL 的结果却明显较弱，这两个模型失败主要源于模型本身能力和指令跟随较弱，容易输出冗长描述、无法稳定遵守短答案格式，导致 TextVQA/DocVQA 中大量答案无法被正确匹配；
+* raw-patch 内部、learned visual stack 内部都存在很大差距，模型在 benchmark 上的表现和实际采用的宏观范式呈现出弱关联。
 
-为了不把表格搞得像实验日志，这里只留三个我比较关心的指标。
+所以，不能简单地说“ViT-free 模型都很强”或者“ViT-free 模型都不行”，更准确且合理的说法是：ViT-free 目前更像一个设计空间，而不是一种已经收敛的统一架构。
 
-| Model | TextVQA ↑ | DocVQA ANLS ↑ | MMBench ↑ |
-| --- | ---: | ---: | ---: |
-| Fuyu-8B | 0.000 | 0.096 | 0.382 |
-| Gemma 4 12B IT | 0.505 | 0.817 | **0.882** |
-| EVEv2.0 | **0.773** | 0.803 | 0.733 |
-| Mono-InternVL-2B | 0.000 | 0.028 | 0.355 |
-| InternVL3.5-8B | **0.843** | **0.920** | 0.871 |
+## 结果二：在通用视觉推理上，差距依然存在
 
-这里我觉得有几个现象挺有意思。
+MMMU 采用 option-level score，避免模型因为输出解释文字而造成解析问题。
 
-### 1. ViT-free 已经不能简单等同于“性能很差”
+| 模型            | MMMU accuracy |
+| ------------- | ------------: |
+| Fuyu          |        28.72% |
+| Mono-InternVL |        29.74% |
+| EVEv2         |        43.85% |
+| Gemma 4       |        50.51% |
+| InternVL      |        61.03% |
 
-这是我跑之前最想确认的一件事。
 
-早期的 Fuyu 在这轮实验里确实已经明显落后，但 Gemma 4 和 EVEv2 完全不是一个量级。
+在这个任务上：
 
-Gemma 4 在这轮 MMBench 上甚至略高于 InternVL3.5，EVEv2 的 TextVQA 也已经到了 0.77，距离 InternVL 的 0.84 并没有特别离谱。
+* Gemma 是表现最好的 ViT-free 模型；
+* EVEv2 居中；
+* Fuyu 和 Mono-InternVL 明显较弱；
+* InternVL 仍然是最高的模型。
 
-当然，这绝对不能推出“ViT-free 已经追平 ViT”。Gemma 4 本身是 12B，训练数据和 recipe 也完全不同。
+这说明去掉 ViT 并不会自动获得通用视觉推理优势，但它也没有说明 ViT-free 注定失败，因为 Gemma 已经展现出了相对早期 ViT-free 模型相当强的能力，可惜它相对 ViT-base 模型仍有明显劣势。
 
-但至少有一件事情已经比较明确：
+## 结果三：低 token 不是白赚，Gemma 展现出能力取舍
 
-> **现在讨论 ViT-free，已经不是在讨论一个只能证明 architecture 可行性的 toy setting 了。**
+这次最有意思的现象之一，是不同模型使用的 visual token 数量差异极大：
 
-比较新的 encoder-free 模型确实已经可以获得相当正常的多模态能力。
+| 模型            | TextVQA visual tokens | DocVQA visual tokens |
+| ------------- | --------------------: | -------------------: |
+| Fuyu          |                   351 |                 1195 |
+| Mono-InternVL |                  2325 |                 3100 |
+| Gemma 4       |                   263 |                  261 |
+| EVEv2         |                  2594 |                 2610 |
+| InternVL      |                  2325 |                 3100 |
 
-### 2. “ViT-free”这个标签本身其实非常粗糙
+Gemma 平均只使用约 260 个 visual tokens，而 EVEv2 和 InternVL 通常使用 2300～3100 个。这种激进的视觉压缩确实带来了很高的 token 效率，但它并没有转化成全面领先的任务能力。
 
-另一个非常直观的结果是，同样被叫做 ViT-free，模型之间差距大得离谱。
+Gemma 在 MMBench 上达到 0.882，接近甚至略高于 InternVL 的 0.871；但在 TextVQA、DocVQA 和 MMMU 上又明显落后于 InternVL。这个结果暗示：激进压缩可能足以保留一部分全局视觉语义，却可能牺牲局部文字、文档证据或高分辨率推理所需的信息。
 
-Fuyu、Gemma 4、EVEv2、Mono-InternVL，以及用离散 visual tokenizer 的 Emu3 / Chameleon / Show-o，本质上并不是一套东西。
+当然，visual token 数量并不等于信息量，模型规模、训练数据、输入分辨率和架构实现也会影响结果。因此，我们目前不能断言 Gemma 的差距一定由 token 压缩造成；但至少可以提出一个值得验证的假设：
 
-有的接近 raw patch projection，有的已经有相当完整的 learned visual stack，还有的是先把图片变成离散 visual tokens。
+> 视觉 token 压缩可能不是单纯的效率优化，而是在不同类型的视觉能力之间进行取舍。
 
-所以之后如果真的研究这个问题，我觉得不能只做：
+真正值得研究的不是“token 越少越好不好”，而是：
 
-> ViT-based vs ViT-free
+> 模型应该在哪些区域、哪些任务上保留更多视觉 token？
 
-这种二元划分。
+## 我们的结论
 
-**视觉输入在进入主干网络之前究竟经过了什么 transformation，本身可能比“有没有一个名字叫 ViT 的 encoder”更加重要。**
+## 结语：ViT-free 不是替代品，而是新的设计空间
 
-### 3. 能做通用多模态题，不代表细粒度视觉信息已经解决
+这批实验没有证明 ViT-free 普遍优于 ViT，但也没有证明它没有价值。更重要的是，我们发现“ViT-free”本身可能是一个过于粗糙的标签：Fuyu、Gemma、EVEv2 和 Mono-InternVL 的视觉输入方式、token 数量、训练目标和任务表现差异都很大，路线内部的差距甚至超过了“是否使用 ViT”带来的差异。
 
-Gemma 4 的结果在这里尤其有意思。
+Gemma 的测评结果说明，极少 visual token 也可以获得不错的综合视觉能力；EVEv2 在文字理解上表现突出；但 Fuyu、Mono-InternVL 又说明，简单去掉 ViT 并不会自动带来优势。未来真正值得比较的，显然不该是单点 accuracy，而是同等 token、延迟和显存预算下的能力—效率 Pareto frontier。
 
-它在 MMBench 上非常强，但 TextVQA 和 DocVQA 仍然落后于 InternVL；EVEv2 也呈现出类似但没那么极端的现象。
+因此，ViT-free 的下一步不一定是彻底取消视觉抽象，而可能是：
 
-这让我觉得，ViT-free 目前真正值得看的可能恰恰不是：
+* 全局使用低成本语义 token，局部文字和关键区域保留 raw patch；
+* 根据问题动态决定哪些区域需要更高分辨率；
+* 用 teacher 告诉 student 哪些视觉信息必须保留，而不是简单模仿 ViT embedding；
+* 建立同时衡量准确率、token 数、延迟和视觉证据利用率的 benchmark。
 
-> 有没有把视觉 encoder 删除掉？
+所以，真正值得追问的不是“ViT-free 能不能取代 ViT”，而是：
 
-而是：
+> **什么信息应该被压缩，什么信息必须保留，以及谁来决定压缩比例？**
 
-> **更原始的视觉信息进入语言模型以后，到底有没有成功变成可以被任务利用的语义表示？**
-
-模型可能保留了很多视觉细节，也可能已经具备不错的 multimodal reasoning，但这两件事情之间并不是自动连起来的。
-
-这也和前面提到的 pixel decodability 结果形成了一个挺有意思的呼应：视觉信息能被恢复出来，并不代表回答问题的时候真的用到了它。
-
-## 这轮实验不能说明什么
-
-还是需要给这轮结果降个温。
-
-首先，TextVQA 和 DocVQA 目前只有 72 个样本，更多只是 smoke-level 的横向观察。
-
-其次，各个模型完全没有做到参数量、训练数据和训练 recipe 对齐，所以不能从这些数字推出任何架构优劣。
-
-另外，部分模型的官方 checkpoint 和推理接口并没有顺利接进统一评测框架。尤其是一些 unified understanding / generation model，本身的输出范式就和普通 VLM 不完全一样，强行塞进同一个 benchmark wrapper 反而可能制造新的误差。
-
-所以这轮实验对我来说更像一个 **reality check**：
-
-把现在能找到的几个 ViT-free 模型真的下载下来、跑起来，看一下这个方向今天究竟发展到了哪里。
-
-结论比我原本想象的稍微乐观一些。
-
-最强的一批 encoder-free VLM 已经可以做到相当有竞争力的任务表现，但不同架构之间的差距依然非常大；而“视觉信息保留得更多”和“最终任务做得更好”之间，也显然还隔着一段距离。
-
-这段距离具体发生在哪里，反而是我接下来更感兴趣的问题。
-
-如果后面继续做，我想把问题进一步拆成几层：
-
-**pixel information 是否还在 → 能否形成 task-relevant semantic information → 模型是否真的会在回答时利用这些信息 → 最终 answer 是否正确。**
-
-单纯再堆几个 benchmark，可能已经没那么有意思了。
-
-真正值得搞清楚的，是 ViT-free 到底把原本发生在视觉 encoder 里的 bottleneck，搬到了哪里。
+目前的 ViT-free 还不是成熟的下一代架构，而是一片正在快速试错、尚未收敛的设计空间。这个领域依旧值得后续的进一步挖掘，只可惜短期内有一些其他课题需要投入，因此只能暂时搁置了。
