@@ -237,7 +237,3 @@ ICLR 2025 的 [PROACTIVE AGENT](https://proceedings.iclr.cc/paper_files/paper/20
 - Deng et al., [Towards Human-centered Proactive Conversational Agents](https://doi.org/10.1145/3626772.3657843), SIGIR 2024.
 - Microsoft Research, [Tell me when: Building agents that can wait, monitor, and act](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/), 2025.
 - Google, [Introducing Gemini Spark](https://blog.google/intl/en-in/company-news/technology/introducing-gemini-spark-your-247-personal-ai-agent-in-country/), 2026；OpenAI, [Meet dots](https://learn.chatgpt.com/docs/dots), 2026.
-
----
-
-<strong>资料与证据说明：</strong>本文核对截至 **2026 年 10 月 9 日**可查的论文预印本、会议论文和产品官方资料。论文结果按原文设置表述；作者对实验的解释与本文归纳分别说明。产品能力依据官方资料，未视为独立验证；模拟评测的边界在第三章统一交代，并在易误读的结果处补充具体限制。VibeLifeBench 结果以表格呈现。
