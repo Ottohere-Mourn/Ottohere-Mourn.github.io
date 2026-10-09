@@ -54,7 +54,7 @@ featured: false
 | 主动发现需求 | 以用户设定的目标和条件为主 | 能主动研究已连接信息并提出建议 |
 | 行动权限 | 高风险操作需确认 | 按授权范围执行，部分操作需审批 |
 
-*表 1｜根据 [Google 官方公告](https://blog.google/intl/en-in/company-news/technology/introducing-gemini-spark-your-247-personal-ai-agent-in-country/)与 [OpenAI Dots 官方文档](https://learn.chatgpt.com/docs/dots)整理。表中描述的是公开功能与产品示例，并非独立评测结果；资料未提及的能力不代表产品一定不具备。*
+*表 1｜根据 [Google 官方公告](https://blog.google/intl/en-in/company-news/technology/introducing-gemini-spark-your-247-personal-ai-agent-in-country/)与 [OpenAI Dots 官方文档](https://learn.chatgpt.com/docs/dots)整理。*
 
 可以看到，**后台执行、长期记忆、事件监测等能力已经开始走向产品化，部分系统甚至能够主动寻找值得关注的信息。** 不过，距离我们期望的那种能够持续理解用户的工作与生活、自主发现潜在需求，并在恰当时候提供帮助的Jarvis式 Agent，仍然有不少问题有待解决。
 
@@ -152,27 +152,6 @@ ICLR 2025 的 [PROACTIVE AGENT](https://proceedings.iclr.cc/paper_files/paper/20
 当然，这些结果来自模拟环境，不能直接代表真实生活中的服务表现。但它们揭示了一个很现实的问题：**完成一次任务已经不容易，持续几周把同一件事做好，可能更加困难。** Agent 既要及时发现变化，也要把变化正确地反映到计划和记忆中，并在之后的行动中继续遵守已有约束。
 
 从这个角度看，Jarvis-like Agent 面临的挑战，不仅是能否理解用户、执行任务，还包括能否随着时间推移，始终保持对事情进展的正确理解。
-
-### 生命周期架构：从完成任务到持续提供服务
-
-前面介绍的研究分别关注记忆、主动性、环境监测和长期任务，但如果想构建一个完整的 Jarvis-like Agent，还需要考虑如何把这些能力组织起来。
-
-[Agents in the Large（Pera）](https://arxiv.org/abs/2608.30478) 就从系统架构的角度讨论了这一问题。它提出在执行具体任务之外，再增加一个负责长期维护的“生命周期层”。例如，一个 Agent 原本负责监测模型训练情况，但随着项目进入新的训练阶段，原有的监测方式可能已经不再适用。这时，Agent 除了执行既定任务，还应该能够发现自己的工作流程需要调整，并主动安排维护。Pera 为这种持续服务提供了一种架构思路，不过目前主要停留在概念设计与案例分析，尚未通过充分的实际部署实验验证。
-
-回顾这一章，不同研究实际上在解决 Jarvis-like Agent 的不同部分：
-
-| 代表工作 | 核心研究问题 |
-|---|---|
-| LongMemEval / Mem2ActBench / Memora | 能否记住过去、利用记忆行动，并及时更新过期信息？ |
-| PROACTIVE AGENT | 能否从用户活动中发现未明确提出的需求？ |
-| PARE | 能否判断何时介入，并在多应用环境中完成相应操作？ |
-| SentinelBench | 能否低成本地等待并及时响应指定事件？ |
-| VibeLifeBench | 能否在多周任务中持续维护计划、状态与约束？ |
-| Pera | 如何把具体任务执行与长期服务维护组织到同一个系统中？ |
-
-*表 3｜常驻 Agent 相关代表性研究及其关注的问题。*
-
-这些研究分别覆盖了常驻 Agent 的关键环节，但把它们组合成长期可靠的服务，仍有差距。
 
 ## 距离 Jarvis-like Agent，还差什么？
 

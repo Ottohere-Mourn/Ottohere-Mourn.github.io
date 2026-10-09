@@ -5,10 +5,6 @@ export const siteConfig = {
   role: 'Researcher / Engineer',
   intro: '浙大本硕，软件工程在读。',
   avatar: '/avatar.jpg',
-  links: {
-    github: 'https://github.com/Ottohere-Mourn',
-    xiaohongshu: 'https://xhslink.cn/o/9CQSdhZFkc3',
-  },
 };
 
 export const categories = [

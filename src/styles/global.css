@@ -41,8 +41,8 @@ img { display: block; max-width: 100%; }
   gap: clamp(64px, 9vw, 138px);
   padding: 64px 0 52px;
 }
-.profile-rail { position: sticky; top: 48px; align-self: start; min-height: 680px; display: flex; flex-direction: column; }
-.profile-topline, .post-meta, .article-meta, .site-footer, .profile-links a, .read-more, .back-link, .article-footer {
+.profile-rail { position: sticky; top: 48px; align-self: start; }
+.profile-topline, .post-meta, .article-meta, .site-footer, .read-more, .back-link, .article-footer {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: .02em;
@@ -58,13 +58,7 @@ img { display: block; max-width: 100%; }
 .profile-card h1 { margin: 0; font-size: 27px; line-height: 1.25; letter-spacing: -.04em; }
 .profile-card h1 span { display: block; margin-top: 3px; color: var(--muted); font-size: 15px; font-weight: 500; letter-spacing: 0; }
 .profile-intro { max-width: 215px; margin: 18px 0 0; color: var(--muted); font-size: 13px; line-height: 1.9; }
-.profile-links { margin-top: auto; border-top: 1px solid var(--line); }
-.profile-links a { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid var(--line); transition: color .2s ease; }
-.profile-links a:hover, .back-link:hover, .article-footer a:hover { color: var(--accent); }
-.link-arrow { color: var(--faint); font-size: 14px; }
-.profile-note { display: flex; gap: 18px; align-items: flex-start; margin-top: 26px; color: var(--muted); font-size: 12px; line-height: 1.75; }
-.profile-note p { margin: 0; }
-.note-index { color: var(--accent); font: 11px var(--mono); }
+.back-link:hover, .article-footer a:hover { color: var(--accent); }
 
 .content-column { min-width: 0; }
 .blog-header { display: flex; justify-content: space-between; align-items: end; padding: 41px 0 27px; border-bottom: 1px solid var(--ink); }
@@ -141,7 +135,6 @@ img { display: block; max-width: 100%; }
 }
 .profile-card h1 { font-weight: 600; }
 .profile-card h1 span { font-family: var(--ui); }
-.profile-links a,
 .read-more,
 .back-link,
 .article-footer { font-family: var(--ui); }
@@ -161,8 +154,6 @@ img { display: block; max-width: 100%; }
   .avatar-wrap { width: 68px; height: 68px; margin-bottom: 16px; }
   .avatar-wrap img { width: 68px; height: 68px; }
   .avatar-mark { width: 24px; height: 24px; font-size: 10px; }
-  .profile-links { align-self: end; min-width: 125px; margin-top: 0; }
-  .profile-note { display: none; }
   .blog-header { padding-top: 42px; }
   .article-page { padding-top: 28px; }
   .article-header { margin-top: 58px; }
@@ -171,8 +162,6 @@ img { display: block; max-width: 100%; }
   body { font-size: 14px; }
   .page-grid { width: calc(100% - 32px); }
   .profile-rail { grid-template-columns: 1fr; gap: 24px; }
-  .profile-links { display: flex; gap: 20px; border-top: 0; }
-  .profile-links a { min-width: 94px; padding: 6px 0; border-bottom: 1px solid var(--line); }
   .blog-header { display: block; padding-top: 34px; }
   .blog-header h2 { font-size: 62px; }
   .header-aside { margin-top: 20px; text-align: left; }
