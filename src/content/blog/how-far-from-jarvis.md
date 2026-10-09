@@ -8,7 +8,7 @@ readingTime: "18 min read"
 featured: false
 ---
 
-![Tony Stark 与 J.A.R.V.I.S. 的电影场景](/images/jarvis-agent/01-jarvis-still.jpg)
+<img src="/images/jarvis-agent/01-jarvis-still.jpg" alt="Tony Stark 与 J.A.R.V.I.S. 的电影场景" style="display: block; width: 60%; margin: 34px auto 10px;">
 
 *图 1｜Tony Stark 与 J.A.R.V.I.S.。来源：[Business Insider](https://www.businessinsider.com/apple-will-buy-vocaliq-to-make-siri-way-better-2015-10)；© Marvel Studios。*
 
